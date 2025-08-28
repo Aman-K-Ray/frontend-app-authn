@@ -28,11 +28,12 @@ const MediumLayout = () => {
                 )}
               >
                 <span>
-                  {formatMessage(messages['start.learning'])}{' '}
+                {getConfig().SITE_TITLE ? getConfig().SITE_TITLE : 'Welcome to your program!'}
                   <span className="text-accent-a d-inline-block">
-                    {formatMessage(messages['with.site.name'], { siteName: getConfig().SITE_NAME })}
+                  {getConfig().SITE_SUB_TITLE}
                   </span>
                 </span>
+                {getConfig().SITE_NAME == "CMU" && <p className='poweredby'>Powered by TalentSprint</p>}
               </h1>
             </div>
           </div>
