@@ -1,21 +1,17 @@
-transifex_resource = frontend-template-application
-transifex_langs = "ar,fr,es_419,zh_CN"
-
+intl_imports = ./node_modules/.bin/intl-imports.js
 transifex_utils = ./node_modules/.bin/transifex-utils.js
 i18n = ./src/i18n
 transifex_input = $(i18n)/transifex_input.json
-tx_url1 = https://www.transifex.com/api/2/project/edx-platform/resource/$(transifex_resource)/translation/en/strings/
-tx_url2 = https://www.transifex.com/api/2/project/edx-platform/resource/$(transifex_resource)/source/
 
 # This directory must match .babelrc .
-transifex_temp = ./temp/babel-plugin-react-intl
+transifex_temp = ./temp/babel-plugin-formatjs
 
 precommit:
 	npm run lint
 	npm audit
 
 requirements:
-	npm install
+	npm ci
 
 i18n.extract:
 	# Pulling display strings from .jsx files into .json files...
@@ -33,22 +29,31 @@ detect_changed_source_translations:
 	# Checking for changed translations...
 	git diff --exit-code $(i18n)
 
-# Pushes translations to Transifex.  You must run make extract_translations first.
-push_translations:
-	# Pushing strings to Transifex...
-	tx push -s
-	# Fetching hashes from Transifex...
-	./node_modules/reactifex/bash_scripts/get_hashed_strings.sh $(tx_url1)
-	# Writing out comments to file...
-	$(transifex_utils) $(transifex_temp) --comments
-	# Pushing comments to Transifex...
-	./node_modules/reactifex/bash_scripts/put_comments.sh $(tx_url2)
-
-# Pulls translations from Transifex.
 pull_translations:
-	tx pull -f --mode reviewed --language=$(transifex_langs)
+	rm -rf src/i18n/messages
+	mkdir src/i18n/messages
+	cd src/i18n/messages \
+	  && atlas pull $(ATLAS_OPTIONS) \
+	           translations/paragon/src/i18n/messages:paragon \
+	           translations/frontend-platform/src/i18n/messages:frontend-platform \
+	           translations/frontend-app-authn/src/i18n/messages:frontend-app-authn
+
+	$(intl_imports) paragon frontend-platform frontend-app-authn
 
 # This target is used by Travis.
 validate-no-uncommitted-package-lock-changes:
 	# Checking for package-lock.json changes...
 	git diff --exit-code package-lock.json
+
+.PHONY: validate
+validate:
+	make validate-no-uncommitted-package-lock-changes
+	npm run i18n_extract
+	npm run lint -- --max-warnings 0
+	npm run test
+	npm run build
+
+.PHONY: validate.ci
+validate.ci:
+	npm ci
+	make validate
