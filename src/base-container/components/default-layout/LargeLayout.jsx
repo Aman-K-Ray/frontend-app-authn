@@ -25,9 +25,12 @@ const LargeLayout = () => {
             )}
           >
            {getConfig().SITE_TITLE ? getConfig().SITE_TITLE : 'Welcome to your program!'}
-            <div className="text-accent-a">
-              {getConfig().SITE_SUB_TITLE}
-            </div>
+             <div
+                className="text-accent-a"
+                dangerouslySetInnerHTML={{
+                  __html: getConfig().SITE_SUB_TITLE
+                }}
+              />
             {getConfig().SITE_NAME == "CMU" && <p className='poweredby'>Powered by TalentSprint</p>}
           </h1>
         </div>

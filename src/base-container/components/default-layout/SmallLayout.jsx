@@ -26,9 +26,12 @@ const SmallLayout = () => {
           >
             <span>
             {getConfig().SITE_TITLE ? getConfig().SITE_TITLE : 'Welcome to your program!'}
-              <span className="text-accent-a d-inline-block">
-              {getConfig().SITE_SUB_TITLE}
-              </span>
+              <span
+                  className="text-accent-a d-inline-block"
+                  dangerouslySetInnerHTML={{
+                    __html: getConfig().SITE_SUB_TITLE
+                  }}
+                />
             </span>
             {getConfig().SITE_NAME == "CMU" && <p className='poweredby'>Powered by TalentSprint</p>}
           </h1>
